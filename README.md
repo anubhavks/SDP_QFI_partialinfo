@@ -1,5 +1,5 @@
 # SDP_partialinfo
-SDP algorithm to obtain the minimum QFI or maximum metrological usefulness from given partial information as discussed in this article [https://arxiv.org/abs/2306.12711](https://arxiv.org/abs/2306.12711)
+SDP algorithm to obtain the minimum QFI or maximum metrological usefulness from given partial information as discussed in this article [https://arxiv.org/abs/2306.12711](https://arxiv.org/abs/2306.12711).
 
 Kindly refer to the article for a detailed analysis of the methods discussed and their advantages and disadvantages.
 
@@ -15,4 +15,4 @@ Kindly refer to the article for a detailed analysis of the methods discussed and
 
 6. The plots used in the article can be found in the [Plots](Plots).
 
-In case of any queries, please write to us at [guillem.muller@icfo.eu](guillem.muller@icfo.eu).
+In case of any queries, please write to us at [guillem.muller@icfo.eu](guillem.muller@icfo.eu) or [anubhav.srivastava@icfo.eu](anubhav.srivastava@icfo.eu).
