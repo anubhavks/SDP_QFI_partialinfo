@@ -109,7 +109,7 @@ for t in t_space:
     QFI_max += [4*np.max(np.linalg.eigvalsh(CoVar))/N]
     print(tmp,QFI(rhot,G))
 
-QFI_SEP = np.array(QFI_SEP)
+QFI_SDP = np.array(QFI_SDP)
 #%%
 plt.figure(dpi = 500)
 plt.plot(t_space/np.pi, QFI_max, label = "QFI max")
@@ -120,5 +120,5 @@ plt.plot(t_space/np.pi, QFI_SDP[:,3], label = "K ≥ 1",linestyle = "dotted")
 plt.xlabel(r"$t/\pi$")
 plt.ylabel("QFI/N")
 plt.legend()
-# plt.savefig(dir+"Plots/Spin_chain.png", dpi = 500)  # Uncomment to save the figure.
+# plt.savefig(dir+"/Plots/Spin_chain.png", dpi = 500)  # Uncomment to save the figure.
 plt.show()
