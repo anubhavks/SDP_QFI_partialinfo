@@ -42,7 +42,7 @@ def iCom(A,B):
 
 
 def SWAP(d):
-    # swaps the state of two qudits. More elegant ways exist
+    # swaps the state of two qudits. 
     basis = np.indices([d, d]).reshape(2,-1).T
     dic = {str(basis[a]): str(a) for a in range(d**2)}
     swapped = np.array([[el[1], el[0]] for el in basis])
@@ -52,8 +52,10 @@ def SWAP(d):
 
 #%%
 
-
-N_values = 4 + np.arange(31)
+N_max = 34 # Maximal number of parties considered.
+# Such value was attainable with an ordinary laptop computer and within a significant time. However, the code 
+# may crash depending on the concrete user's machine. In such case, lower N_max.  
+N_values = np.arange(4, N_max)
 
 
 time_gui = []
@@ -65,20 +67,18 @@ qfi_toth = []
 ss = []
 
 for N in N_values:
-    print(N)
-
-    #N = 30
+    print(N) # progress
     Jx, Jy, Jz = spin(N+1)
     
-    G = Jx
-    jy = 0.8*N/2
-    jzjz = 0.4*N/4
-    constr_rho = [[Jy, jy], [Jz @ Jz, jzjz]]
+    G = Jx  # generator
+    jy = 0.8*N/2  # mean spin
+    jzjz = 0.4*N/4  # squeezed fluctuations
+    constr_rho = [[Jy, jy], [Jz @ Jz, jzjz]] # constraints to be added to SDP
     
-    # SS
+    # spin squeezing
     ss += [jy**2/jzjz]
     
-    # SDP Gui
+    # Our SDP based on fidelity 
     dtheta = 0.01*N
     rhos = cp.Variable((len(G),len(G)), hermitian = True)
     L =  cp.Variable((len(G),len(G)), complex = True)
@@ -94,10 +94,10 @@ for N in N_values:
     time1 = time.time()
     time_gui += [time1- start1]
     qfi_gui += [QFI(rhos.value, G)]
-    print(jy**2/jzjz, QFI(rhos.value, G))
+    #print(jy**2/jzjz, QFI(rhos.value, G))
     
     
-    # SDP Stas
+    # Our SDP based on variance
     d = N+1 # dimension of rho
     trho = cp.Variable((d,d), hermitian = True)
     y0 = cp.Variable()
@@ -128,7 +128,7 @@ for N in N_values:
     print(jy**2/jzjz, QFI(rho, G), QFI(rhos.value, G))
 
 
-    # SDP Tóth
+    # SDP introduced by Tóth 
     D = N + 1
     S = SWAP(D)
     rho_t = cp.Variable((D**2, D**2), hermitian = True)
@@ -150,7 +150,7 @@ for N in N_values:
     qfi_toth += [QFI(rho2, G)]
     print(jy**2/jzjz, QFI(rho2, G), QFI(rhos.value, G))
     
-    print("SS = " + str(jy**2/jzjz), " | QFI(Toth) = " + str(QFI(rho2, G)) + " | QFI(Stas) = " + str(QFI(rho, G)) + " | QFI(Gui) = " + str(QFI(rhos.value, G)))
+    print("spin squeezing = " + str(jy**2/jzjz), " | bound Tóth = " + str(QFI(rho2, G)) + " | bound from variance = " + str(QFI(rho, G)) + " | bound from fidelity = " + str(QFI(rhos.value, G)))
 
 #%%
 
@@ -160,7 +160,7 @@ time_stas = np.array(time_stas)
 qfi_stas = np.array(qfi_stas)
 ss = np.array(ss)
 
-#%%
+#%% Plot Figure 6a
 
 plt.plot((N_values[1:] + 1)**2, time_stas[1:],"o-",label = "SDP variance")
 plt.plot((N_values[1:] + 1)**2, time_gui[1:],"^--",label = "SDP fidelity")
@@ -171,22 +171,18 @@ plt.legend()
 plt.savefig("comparison_time.png", dpi = 500)
 
 
-#%%
+#%% Plot Figure 6b
 
-plt.plot((N_values[1:] + 1)**2, (qfi_stas[1:]-ss[1:])/ss[1:], "o-" ,label = "SDP variance")
-plt.plot((N_values[1:] + 1)**2, (qfi_gui[1:]-ss[1:])/ss[1:],"^--",label = "SDP fidelity")
-plt.plot((N_values[1:] + 1)**2, (qfi_toth[1:]-ss[1:])/ss[1:],"+-.",label = "SDP Toth")
+plt.plot((N_values[1:] + 1)**2, (qfi_gui[1:]-qfi_stas[1:])/qfi_stas[1:], "o-" ,label = "SDP variance")
 plt.xlabel(r"$D^2 = (N+1)^2$")
-plt.ylabel(r"$(\mathrm{QFI}_{\hat{J}_z} - \Xi^{-2}_R)/\Xi^{-2}_R$")
-plt.axhline(0, color = "black")
+plt.ylabel(r"$(\mathrm{QFI}_{\mathrm{f}} - \mathrm{QFI}_{\mathrm{v}})/\mathrm{QFI}_{\mathrm{v}}$")
 plt.legend()
 plt.savefig("comparison_preci.png", dpi = 500)
 
-#%%
-
-data_compGuiSta = np.array([time_gui, qfi_gui, time_stas, qfi_stas, N_values, ss])
-
-data_compGuiSta = np.load("data_compGuiSta.npy")
+#%% Data
+data_compGuiSta = np.array([time_gui, qfi_gui, time_stas, qfi_stas, N_values, ss]) # Save
+# Please, find the precomputed data in Plots folder
+data_compGuiSta = np.load("data_compGuiSta.npy") # Load
 time_gui, qfi_gui,time_sta, qfi_sta, N_values, ss = data_compGuiSta
 
 
