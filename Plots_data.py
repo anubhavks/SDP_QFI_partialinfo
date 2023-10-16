@@ -14,8 +14,8 @@ print('Get current working directory : ', dir)
 # dir = "" Enter the pathname of the file where the repository is downloaded
 
 # To load the data stored for the linear and non-linear spin squeezing bounds
-with open(dir+"Data/linearSS_10,30", "rb") as f:            # Comment for non-linear spin squeezing
-# with open(dir+"Data/non-linearSS_10,30", "rb") as f:      # Uncomment for non-linear spin squeezing
+with open(dir+"/Data/linearSS_10,30", "rb") as f:            # Comment for non-linear spin squeezing
+# with open(dir+"/Data/nonlinearSS_10,30", "rb") as f:      # Uncomment for non-linear spin squeezing
     N_vals = np.load(f)
     t_values = np.load(f)
     QFI_max_N = np.load(f)
@@ -38,9 +38,9 @@ for i in range(len(N_vals)):
     plt.ylabel("QFI/N", size = 16)
     plt.legend(fontsize = 12)
     plt.title("Linear spin squeezing for N = " + str(N_vals[i]), size = 18)        # Comment for non-linear spin squeezing
-    plt.savefig(dir+"Plots/OAT_linear.png", dpi = 500)                             # Comment for non-linear spin squeezing
+    plt.savefig(dir+"/Plots/OAT_linear.png", dpi = 500)                             # Comment for non-linear spin squeezing
     # plt.title("Non-linear spin squeezing for N = " + str(N_vals[i]), size = 18)  # Uncomment for non-linear spin squeezing
-    # plt.savefig(dir+"Plots/OAT_linear.png", dpi = 500)                           # Uncomment for non-linear spin squeezing
+    # plt.savefig(dir+"/Plots/OAT_linear.png", dpi = 500)                           # Uncomment for non-linear spin squeezing
     plt.show()
     
 #%%    
@@ -58,6 +58,6 @@ plt.ylabel("gap/N", size = 12)
 plt.axhline(0, color = "black", linewidth = 0.5)
 plt.legend(fontsize = 7.5)
 plt.tight_layout()
-plt.savefig(dir+"Plots/OAT_lin_gaps.png", dpi = 500)    # Comment for non-linear spin squeezing
-# plt.savefig(dir+"Plots/OAT_quad_gaps.png", dpi = 500) # Uncomment for non-linear spin squeezing
+plt.savefig(dir+"/Plots/OAT_lin_gaps.png", dpi = 500)    # Comment for non-linear spin squeezing
+# plt.savefig(dir+"/Plots/OAT_quad_gaps.png", dpi = 500) # Uncomment for non-linear spin squeezing
 plt.show()
