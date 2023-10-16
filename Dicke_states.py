@@ -184,7 +184,8 @@ for a in a_list:
         F.solve(solver = "MOSEK")
         QFI_final_a += [QFI(rho.value,G)/N]          
     QFI_final += [QFI_final_a]  
-
+    
+QFI_Dicke = [(i/2+1) for i in N_list]
 #%% Saves values 
 with open(dir+"/Data/dicke_states_N_70", "wb") as f:
     np.save(f, N_list)
