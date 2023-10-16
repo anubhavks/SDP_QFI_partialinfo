@@ -9,6 +9,11 @@ import numpy as np
 import cvxpy as cp
 import scipy as sp
 import matplotlib.pyplot as plt
+import os
+dir = os.path.dirname(__file__)
+print('Get current working directory : ', dir)
+
+# dir = ""     # To manually add the path name to the current directory
 
 def spin(d):
     j = (d-1)/2
@@ -140,6 +145,6 @@ plt.plot(t_values/np.pi, np.array(SS),linestyle = "--", label = r'$\xi^{-2}_{\Pi
 plt.xlabel("t/π")
 plt.ylabel("QFI/N")
 plt.legend()
-#plt.savefig("OAT_linpar_N14.png", dpi = 500) # save figure
+#plt.savefig(dir+"Plots/OAT_linpar_N14.png", dpi = 500) # save figure
 
 
