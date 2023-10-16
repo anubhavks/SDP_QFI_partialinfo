@@ -145,6 +145,6 @@ plt.plot(t_values/np.pi, np.array(SS),linestyle = "--", label = r'$\xi^{-2}_{\Pi
 plt.xlabel("t/π")
 plt.ylabel("QFI/N")
 plt.legend()
-#plt.savefig(dir+"Plots/OAT_linpar_N14.png", dpi = 500) # save figure
+#plt.savefig(dir+"/Plots/OAT_linpar_N14.png", dpi = 500) # save figure
 
 
