@@ -16,6 +16,12 @@ import cvxpy as cp
 import scipy as sp
 import matplotlib.pyplot as plt
 
+import os
+dir = os.path.dirname(__file__)
+print('Get current working directory : ', dir)
+
+# dir = ""     # To manually add the path name to the current directory
+
 #%%
 
 
@@ -121,7 +127,7 @@ for i in range(res):
     SS += [SS_i]
     
 #%% Load instead the precomputed data
-data_Dicke_param = np.load("data_Dicke_param.npy")
+data_Dicke_param = np.load(dir+"Data/data_Dicke_param.npy")
 x = data_Dicke_param[0]
 SS = data_Dicke_param[1]
 QFI_final = data_Dicke_param[2]
@@ -137,11 +143,11 @@ QFI_final = data_Dicke_param[2]
 # plt.ylabel(r'$\mathrm{QFI}_{\hat{J}_z}/N$')
 # plt.legend()
 # #plt.tight_layout()
-# plt.savefig("Dicke_param.png", dpi = 500)
+# plt.savefig(dir+"Plots/Dicke_param.png", dpi = 500)
 
 
 # #data_Dicke_param = np.array([x, SS, QFI_final])
-# #np.save("data_Dicke_param.npy", data_Dicke_param)
+# #np.save(dir+"Data/data_Dicke_param.npy", data_Dicke_param)
 
 
 #%%  SCALING
@@ -180,14 +186,14 @@ for a in a_list:
     QFI_final += [QFI_final_a]  
 
 #%% Saves values 
-with open("dicke_states_N_70", "wb") as f:
+with open(dir+"Data/dicke_states_N_70", "wb") as f:
     np.save(f, N_list)
     np.save(f, a_list)
     np.save(f, QFI_Dicke)
     np.save(f, QFI_final)
 
 #%% Computation takes a while, we provide precomputed values
-with open("dicke_states_N_70", "rb") as f_load:
+with open(dir+"Data/dicke_states_N_70", "rb") as f_load:
     N_list = np.load(f_load)
     a_list = np.load(f_load)
     QFI_Dicke = np.load(f_load)
@@ -208,7 +214,7 @@ plt.xlabel(r"$N$")
 plt.ylabel(r'$\mathrm{QFI}_{\hat{J}_z}/N$')
 plt.legend()
 plt.tight_layout()
-plt.savefig("Dicke_N.png", dpi = 500)
+plt.savefig(dir+"Plots/Dicke_N.png", dpi = 500)
 
 
 #%% Figure 8b
@@ -223,6 +229,6 @@ plt.xlabel(r"$\langle\hat{J}_x^2\rangle$")
 plt.ylabel(r'$\mathrm{QFI}_{\hat{J}_z}/N$')
 plt.legend()
 plt.tight_layout()
-plt.savefig("Dicke_Jx.png", dpi = 500)
+plt.savefig(dir+"Plots/Dicke_Jx.png", dpi = 500)
 
 
