@@ -1,5 +1,5 @@
 # SDP_partialinfo
-Semidefinite program (SDP) to certify metrological usefulness as quantified by the quantum Fisher information (QFI), from experimentally-accesible statistics. Official code of the work [https://arxiv.org/abs/2306.12711](https://arxiv.org/abs/2306.12711).
+Semidefinite program (SDP) to certify metrological usefulness as quantified by the quantum Fisher information (QFI) from experimentally-accesible statistics. Official code of the work [https://arxiv.org/abs/2306.12711](https://arxiv.org/abs/2306.12711).
 
 Kindly refer to the article for a detailed analysis of the methods discussed and their advantages and disadvantages.
 
