@@ -118,7 +118,7 @@ plt.plot(t_space/np.pi, QFI_SDP[:,0], label = "K = 0",linestyle = "dashed")
 plt.plot(t_space/np.pi, QFI_SDP[:,1], label = "K ≥ 1",linestyle = "dotted")
 plt.plot(t_space/np.pi, QFI_SDP[:,3], label = "K ≥ 1",linestyle = "dotted")
 plt.xlabel(r"$t/\pi$")
-plt.ylabel("QFI/N$")
+plt.ylabel("QFI/N")
 plt.legend()
-# plt.savefig(dir+"Plots/K.png", dpi = 500)  # Uncomment to save the figure.
+# plt.savefig(dir+"Plots/Spin_chain.png", dpi = 500)  # Uncomment to save the figure.
 plt.show()
