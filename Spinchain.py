@@ -10,10 +10,12 @@ import matplotlib.pyplot as plt
 import scipy.linalg as sp
 import cvxpy as cp
 
+# Pauli matrices
 x = np.array([[0,1],[1,0]])/2
 y = np.array([[0,-1j],[1j,0]])/2
 z = np.array([[1,0],[0,-1]])/2
 
+# Definition quantum Fisher information with respect generator G
 def QFI(rho, G):
     Eigen_vals, eigen_vecs = np.linalg.eigh(rho)
     qfi_val=0.0
@@ -54,17 +56,17 @@ Md = [[Op_k(x,k), Op_k(y,k), Op_k(z,k)] for k in range(N)]     # Observables
     
 #%%
 
-res = 20  # 50
+res = 50  # resolution time step
 t_space = np.linspace(0.01, 2*np.pi, res)
 
-t_space = [0.9*np.pi]
-
-QFI_max = []
-QFI_psi = []
-QFI_SDP = []
+QFI_max = []    # max QFI over generators G given state
+QFI_psi = []    # QFI of the state with G = Jas (generator aligned with the antisqueezed component) 
+QFI_SDP = []    # Our SDP bound w.r.t. G = Jas given data
 for t in t_space:
     print(t/max(t_space))
-    rhot = sp.expm(1j*t*H)  @ np.outer(psi_0,psi_0) @ sp.expm(-1j*t*H)
+    rhot = sp.expm(1j*t*H)  @ np.outer(psi_0,psi_0) @ sp.expm(-1j*t*H) # time evolution
+    
+    # Computation optimal generator for spin-squeezing (momentum zero), Jas = G
     O_list = Md[0]
     Gamma =  np.array([[2*np.imag(np.trace(rhot @ Oa @ Ob)) for Oa in O_list] for Ob in O_list])
     ExpVals = np.array([[np.real(np.trace(rhot @ Oa)) for Oa in O_list]])
@@ -89,7 +91,7 @@ for t in t_space:
         constraints = [cp.trace(rho) == 1]  # rho proper density matrix
         for M1 in Md[0]:
             constraints += [cp.trace(M1 @ rho)  == np.trace(M1 @ rhot)]  # First moments
-        for r in range(k+1):
+        for r in range(k+1):  # We incorporate data up to momentum k
             for M1 in Md[r]:
                 for M2 in Md[r]:
                     constraints += [cp.real(cp.trace(M1 @ np.transpose(np.conjugate(M2)) @ rho))  == np.real(np.trace(M1 @ np.transpose(np.conjugate(M2)) @ rhot))]  # Second moments
@@ -102,7 +104,7 @@ for t in t_space:
     QFI_max += [4*np.max(np.linalg.eigvalsh(CoVar))/N]
     print(tmp,QFI(rhot,G))
 
-
+QFI_SEP = np.array(QFI_SEP)
 #%%
 
 plt.plot(t_space/np.pi, QFI_max, label = "QFI max")
@@ -113,4 +115,4 @@ plt.plot(t_space/np.pi, QFI_SDP[:,3], label = "K ≥ 1",linestyle = "dotted")
 plt.xlabel(r"$t/\pi$")
 plt.ylabel("QFI/N$")
 plt.legend()
-# plt.savefig("K.png", dpi = 500)
+# plt.savefig("K.png", dpi = 500)  # Uncomment to save the figure.
