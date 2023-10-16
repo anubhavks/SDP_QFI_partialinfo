@@ -130,7 +130,7 @@ plt.ylim([-0.5,2])
 plt.xlabel(r"$\mu/[\lambda_{\max}(\hat{G})-\lambda_{\min}(\hat{G})]$")
 plt.ylabel(r"$\mathcal{W}_\mu(\mathbf{r})$")
 plt.legend()
-plt.savefig(dir+"Plots/Apellaniz.png", dpi = 500)
+plt.savefig(dir+"/Plots/Apellaniz.png", dpi = 500)
 
 
 
@@ -156,7 +156,7 @@ plt.xlabel(r"$\delta\theta/\pi $")
 plt.ylim([0.85,1.01])
 plt.xlim([0,4*1.4/np.pi])
 plt.legend()
-plt.savefig(dir+"Plots/finite_dtheta_fidelity.png", dpi = 300)
+plt.savefig(dir+"/Plots/finite_dtheta_fidelity.png", dpi = 300)
 
 #%%
 # QFI: plot Figure 5b
@@ -175,4 +175,4 @@ plt.ylim([0.1,0.5])
 #plt.xlim([0.0, 10*0.02/np.pi])
 plt.xlim([0,2*1.5/(np.pi)])
 plt.legend(loc = 2)
-plt.savefig(dir+"Plots/finite_dtheta_QFI.png", dpi = 300)
+plt.savefig(dir+"/Plots/finite_dtheta_QFI.png", dpi = 300)
