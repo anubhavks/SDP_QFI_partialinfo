@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 
 
 def spin(d):
+    "Computes d x d spin-j matrices (d = 2j + 1)"
     j = (d-1)/2
     mz = np.arange(-j, j+1)
     spi = np.diag(np.sqrt(j * (j+1) - mz[:-1] * (mz[:-1] + 1)), k = -1)
@@ -29,6 +30,7 @@ def spin(d):
     return [jx, jy, jz]
 
 def QFI(rho, G):
+    "Definition of quantum Fisher information with respect generator G (unitary encoding)"
     Eigen_vals, eigen_vecs = np.linalg.eigh(rho)
     qfi_val = 0.0
     for i in range(len(Eigen_vals)):
@@ -40,11 +42,11 @@ def QFI(rho, G):
 
 #%%
 
-N = 16
+N = 16  # Number of parties
 
 #
 
-D_list = [N+1-2*int(k) for k in range(1 + N//2)] # Dimensions
+D_list = [N+1-2*int(k) for k in range(1 + N//2)] # Dimensions of the permutation-invariant blocks
 J_list = [spin(d) for d in D_list]
 J_vect = spin(2)
 
@@ -68,34 +70,33 @@ Jz_block = full_to_block([Jz])[0]
 G = Jz
 G_block = full_to_block([G])[0]
 
-#%%
+#%% DICKE SQUEEZING  
 
-res = 30
+res = 30  # resolution of the figure
 
+# Data
 Jsq = 0.7*(N/2)*((N/2)+1)
-
 JxJx_values = np.linspace(0,2,res)
 JyJyPJzJz_values = Jsq - np.linspace(0,2,res)
 
 
-QFI_final = []
-SS = []
+QFI_final = []  # Our SDP bound
+SS = [] # Dicke spin-squeezing bound
 for i in range(res):
-    print(i/res)
+    print(i/res)  # Progress
     JxJx_ev = JxJx_values[i]
     JyJyPJzJz_ev = JyJyPJzJz_values[i]
     SS_i = np.real(JyJyPJzJz_ev/(N*(JxJx_ev + 1/4)))/2
  
-    # SDP 
-    
-    
-    rho_block = [cp.Variable((d, d), hermitian = True) for d in D_list]
+    # SDP algorithm
+    # Variables
+    rho_block = [cp.Variable((d, d), hermitian = True) for d in D_list] # State
     L_block = [cp.Variable((d, d), complex = True) for d in D_list]
-    
-    constraints = [cp.sum([cp.trace(rho_block[j]) for j in range(len(D_list))]) == 1] 
+    # Constraints
+    constraints = [cp.sum([cp.trace(rho_block[j]) for j in range(len(D_list))]) == 1] # Normalization
     constraints += [cp.sum([cp.trace(Jx_block[j] @ Jx_block[j] @ rho_block[j]) for j in range(len(D_list))]) == JxJx_ev] 
     constraints += [cp.sum([cp.trace((Jy_block[j] @ Jy_block[j] + Jz_block[j] @ Jz_block[j]) @ rho_block[j]) for j in range(len(D_list))]) == JyJyPJzJz_ev]
-    constraints += [cp.sum([cp.trace(Jx_block[j] @ rho_block[j]) for j in range(len(D_list))]) == 0] 
+    constraints += [cp.sum([cp.trace(Jx_block[j] @ rho_block[j]) for j in range(len(D_list))]) == 0] # Zero mean spin 
     constraints += [cp.sum([cp.trace(Jy_block[j] @ rho_block[j]) for j in range(len(D_list))]) == 0] 
     constraints += [cp.sum([cp.trace(Jz_block[j] @ rho_block[j]) for j in range(len(D_list))]) == 0]  
     
@@ -105,7 +106,6 @@ for i in range(res):
     for j in range(len(D_list)):
         constraints += [cp.kron([[1,0],[0,0]],rho_block_plus[j]) + cp.kron([[0,0],[0,1]],rho_block_minus[j]) + cp.kron([[0,1],[0,0]], L_block[j]) + cp.kron([[0,0],[1,0]], L_block[j].H) >> 0]
        
-        
     F = cp.Problem(cp.Maximize(cp.sum([cp.real(cp.trace(L_block[j])) for j in range(len(D_list))])), constraints)
     F.solve(solver = "MOSEK")
         
@@ -114,14 +114,19 @@ for i in range(res):
 
     if rho_final[0][0] is not None:   
         QFI_i = QFI(rho_final, G)/N
-    else:
+    else:  # If the data would not be compatible with any state
         QFI_i = None
         SS_i = None
     QFI_final += [QFI_i]
     SS += [SS_i]
     
-    
-#%%
+#%% Load instead the precomputed data
+data_Dicke_param = np.load("data_Dicke_param.npy")
+x = data_Dicke_param[0]
+SS = data_Dicke_param[1]
+QFI_final = data_Dicke_param[2]
+
+#%% Plot Figure 1 
 
 # #plt.rcParams.update({"font.size": 12})
 
@@ -138,20 +143,13 @@ for i in range(res):
 # #data_Dicke_param = np.array([x, SS, QFI_final])
 # #np.save("data_Dicke_param.npy", data_Dicke_param)
 
-#%%
-data_Dicke_param = np.load("data_Dicke_param.npy")
-x = data_Dicke_param[0]
-SS = data_Dicke_param[1]
-QFI_final = data_Dicke_param[2]
-
 
 #%%  SCALING
 
-N_max = 70
+N_max = 70  # Maximal number of particles that we reach
 
 a_list = [0.01,0.02,0.03,0.05,0.08,0.1]
 N_list = [2*(i+1) for i in range(int(N_max/2))]
-#N_list = [40]
 QFI_final = []
 for a in a_list:
     QFI_final_a = []
@@ -162,10 +160,10 @@ for a in a_list:
         Jy = spin(N+1)[1]
         Jz = spin(N+1)[2]
         
-        G = Jz
+        G = Jz  # Generator
     
-       
-        rho = cp.Variable((N+1, N+1), hermitian = True)
+        # Since the collective spin is maximal, we can restrict to the symmetric sector
+        rho = cp.Variable((N+1, N+1), hermitian = True) 
         L = cp.Variable((N+1, N+1), complex = True)
         
         constraints = [cp.trace(rho) == 1] 
@@ -179,10 +177,24 @@ for a in a_list:
         F = cp.Problem(cp.Maximize(cp.real(cp.trace(L))),constraints)
         F.solve(solver = "MOSEK")
         QFI_final_a += [QFI(rho.value,G)/N]          
-    QFI_final += [QFI_final_a]           
+    QFI_final += [QFI_final_a]  
+
+#%% Saves values 
+with open("dicke_states_N_70", "wb") as f:
+    np.save(f, N_list)
+    np.save(f, a_list)
+    np.save(f, QFI_Dicke)
+    np.save(f, QFI_final)
+
+#%% Computation takes a while, we provide precomputed values
+with open("dicke_states_N_70", "rb") as f_load:
+    N_list = np.load(f_load)
+    a_list = np.load(f_load)
+    QFI_Dicke = np.load(f_load)
+    QFI_final = np.load(f_load)
             
     
-#%%
+#%% Figure 8a
 
 QFI_Dicke = [(i/2+1) for i in N_list]
 
@@ -199,7 +211,7 @@ plt.tight_layout()
 plt.savefig("Dicke_N.png", dpi = 500)
 
 
-#%%
+#%% Figure 8b
 
 plt.plot(N_list/4*a_list[0], QFI_final[0],marker = "+", label = "a = 0.01", color = "C1")
 plt.plot(N_list/4*a_list[1], QFI_final[1],marker = "*", label = "a = 0.02", color = "C2")
@@ -207,25 +219,10 @@ plt.plot(N_list/4*a_list[2], QFI_final[2],marker = "v", label = "a = 0.03", colo
 plt.plot(N_list/4*a_list[3], QFI_final[3],marker = "d", label = "a = 0.05", color = "C4")
 plt.plot(N_list/4*a_list[4], QFI_final[4],marker = "p", label = "a = 0.10", color = "C5")
 plt.vlines(0.25, 0, np.max(QFI_final), color = "black", linestyles = "--")
-plt.xlabel(r"$\langle\hat{J}_x\rangle$")
+plt.xlabel(r"$\langle\hat{J}_x^2\rangle$")
 plt.ylabel(r'$\mathrm{QFI}_{\hat{J}_z}/N$')
 plt.legend()
 plt.tight_layout()
 plt.savefig("Dicke_Jx.png", dpi = 500)
 
 
-#%%
-
-with open("dicke_states_N_70", "wb") as f:
-    np.save(f, N_list)
-    np.save(f, a_list)
-    np.save(f, QFI_Dicke)
-    np.save(f, QFI_final)
-
-#%%
-
-with open("dicke_states_N_70", "rb") as f_load:
-    N_list = np.load(f_load)
-    a_list = np.load(f_load)
-    QFI_Dicke = np.load(f_load)
-    QFI_final = np.load(f_load)
