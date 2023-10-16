@@ -44,7 +44,7 @@ N = 16
 
 #
 
-D_list = [N+1-2*int(k) for k in range(1 + N/2)] # Dimensions
+D_list = [N+1-2*int(k) for k in range(1 + N//2)] # Dimensions
 J_list = [spin(d) for d in D_list]
 J_vect = spin(2)
 
