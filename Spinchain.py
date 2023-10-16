@@ -9,6 +9,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.linalg as sp
 import cvxpy as cp
+import os
+dir = os.path.dirname(__file__)
+print('Get current working directory : ', dir)
+
+# dir = ""     # To manually add the path name to the current directory
 
 # Pauli matrices
 x = np.array([[0,1],[1,0]])/2
@@ -106,7 +111,7 @@ for t in t_space:
 
 QFI_SEP = np.array(QFI_SEP)
 #%%
-
+plt.figure(dpi = 500)
 plt.plot(t_space/np.pi, QFI_max, label = "QFI max")
 plt.plot(t_space/np.pi, QFI_psi, label = "QFI psi")
 plt.plot(t_space/np.pi, QFI_SDP[:,0], label = "K = 0",linestyle = "dashed")
@@ -115,4 +120,5 @@ plt.plot(t_space/np.pi, QFI_SDP[:,3], label = "K ≥ 1",linestyle = "dotted")
 plt.xlabel(r"$t/\pi$")
 plt.ylabel("QFI/N$")
 plt.legend()
-# plt.savefig("K.png", dpi = 500)  # Uncomment to save the figure.
+# plt.savefig(dir+"Plots/K.png", dpi = 500)  # Uncomment to save the figure.
+plt.show()
