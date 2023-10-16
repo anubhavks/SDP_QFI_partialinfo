@@ -15,8 +15,8 @@ x = np.array([[0,1],[1,0]])/2
 y = np.array([[0,-1j],[1j,0]])/2
 z = np.array([[1,0],[0,-1]])/2
 
-# Definition quantum Fisher information with respect generator G
 def QFI(rho, G):
+    "Definition quantum Fisher information with respect generator G (unitary encoding)"
     Eigen_vals, eigen_vecs = np.linalg.eigh(rho)
     qfi_val=0.0
     for i in range(len(Eigen_vals)):
