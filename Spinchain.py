@@ -28,7 +28,7 @@ def QFI(rho, G):
 
 #%%
 
-N = 4
+N = 4  # Number of particles
 
 def Op(o,i):
     # Applies operator o at party i
