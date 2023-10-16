@@ -127,7 +127,7 @@ for i in range(res):
     SS += [SS_i]
     
 #%% Load instead the precomputed data
-data_Dicke_param = np.load(dir+"Data/data_Dicke_param.npy")
+data_Dicke_param = np.load(dir+"/Data/data_Dicke_param.npy")
 x = data_Dicke_param[0]
 SS = data_Dicke_param[1]
 QFI_final = data_Dicke_param[2]
@@ -136,18 +136,18 @@ QFI_final = data_Dicke_param[2]
 
 # #plt.rcParams.update({"font.size": 12})
 
-# #x = JxJx_values[0:len(QFI_final)]
+# x = JxJx_values[0:len(QFI_final)]
 # plt.plot(x, SS, linestyle = "dashed", label = r"$(2\xi_D)^{-1}$")
 # plt.plot(x, QFI_final, label = "SDP bound")
 # plt.xlabel(r"$<\hat{J}_x^2>$")
 # plt.ylabel(r'$\mathrm{QFI}_{\hat{J}_z}/N$')
 # plt.legend()
 # #plt.tight_layout()
-# plt.savefig(dir+"Plots/Dicke_param.png", dpi = 500)
+# plt.savefig(dir+"/Plots/Dicke_param.png", dpi = 500)
 
 
 # #data_Dicke_param = np.array([x, SS, QFI_final])
-# #np.save(dir+"Data/data_Dicke_param.npy", data_Dicke_param)
+# #np.save(dir+"/Data/data_Dicke_param.npy", data_Dicke_param)
 
 
 #%%  SCALING
@@ -186,14 +186,14 @@ for a in a_list:
     QFI_final += [QFI_final_a]  
 
 #%% Saves values 
-with open(dir+"Data/dicke_states_N_70", "wb") as f:
+with open(dir+"/Data/dicke_states_N_70", "wb") as f:
     np.save(f, N_list)
     np.save(f, a_list)
     np.save(f, QFI_Dicke)
     np.save(f, QFI_final)
 
 #%% Computation takes a while, we provide precomputed values
-with open(dir+"Data/dicke_states_N_70", "rb") as f_load:
+with open(dir+"/Data/dicke_states_N_70", "rb") as f_load:
     N_list = np.load(f_load)
     a_list = np.load(f_load)
     QFI_Dicke = np.load(f_load)
@@ -204,6 +204,7 @@ with open(dir+"Data/dicke_states_N_70", "rb") as f_load:
 
 QFI_Dicke = [(i/2+1) for i in N_list]
 
+plt.figure(dpi = 500)
 plt.scatter(N_list, QFI_Dicke, marker = "o", label = "a = 0 ")
 plt.scatter(N_list, QFI_final[0],marker = "+", label = "a = 0.01")
 plt.scatter(N_list, QFI_final[1],marker = "*", label = "a = 0.02")
@@ -214,11 +215,12 @@ plt.xlabel(r"$N$")
 plt.ylabel(r'$\mathrm{QFI}_{\hat{J}_z}/N$')
 plt.legend()
 plt.tight_layout()
-plt.savefig(dir+"Plots/Dicke_N.png", dpi = 500)
-
+plt.savefig(dir+"/Plots/Dicke_N.png", dpi = 500)
+plt.show()
 
 #%% Figure 8b
 
+plt.figure(dpi = 500)
 plt.plot(N_list/4*a_list[0], QFI_final[0],marker = "+", label = "a = 0.01", color = "C1")
 plt.plot(N_list/4*a_list[1], QFI_final[1],marker = "*", label = "a = 0.02", color = "C2")
 plt.plot(N_list/4*a_list[2], QFI_final[2],marker = "v", label = "a = 0.03", color = "C3")
@@ -229,6 +231,6 @@ plt.xlabel(r"$\langle\hat{J}_x^2\rangle$")
 plt.ylabel(r'$\mathrm{QFI}_{\hat{J}_z}/N$')
 plt.legend()
 plt.tight_layout()
-plt.savefig(dir+"Plots/Dicke_Jx.png", dpi = 500)
-
+plt.savefig(dir+"/Plots/Dicke_Jx.png", dpi = 500)
+plt.show()
 
