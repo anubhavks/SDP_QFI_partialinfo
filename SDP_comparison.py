@@ -14,6 +14,11 @@ import cvxpy as cp
 import scipy as sp
 import matplotlib.pyplot as plt
 import time
+import os
+dir = os.path.dirname(__file__)
+print('Get current working directory : ', dir)
+
+# dir = ""     # To manually add the path name to the current directory
 
 
 def spin(d):
@@ -161,28 +166,29 @@ qfi_stas = np.array(qfi_stas)
 ss = np.array(ss)
 
 #%% Plot Figure 6a
-
+plt.figure(dpi = 500)
 plt.plot((N_values[1:] + 1)**2, time_stas[1:],"o-",label = "SDP variance")
 plt.plot((N_values[1:] + 1)**2, time_gui[1:],"^--",label = "SDP fidelity")
 plt.plot((N_values[1:] + 1)**2, time_toth[1:],"+-.",label = "SDP Toth")
 plt.xlabel(r"$D^2 = (N+1)^2$")
 plt.ylabel("solver time (s)")
 plt.legend()
-plt.savefig("comparison_time.png", dpi = 500)
-
+plt.savefig(dir+"Plots/comparison_time.png", dpi = 500)
+plt.show()
 
 #%% Plot Figure 6b
-
+plt.figure(dpi = 500)
 plt.plot((N_values[1:] + 1)**2, (qfi_gui[1:]-qfi_stas[1:])/qfi_stas[1:], "o-" ,label = "SDP variance")
 plt.xlabel(r"$D^2 = (N+1)^2$")
 plt.ylabel(r"$(\mathrm{QFI}_{\mathrm{f}} - \mathrm{QFI}_{\mathrm{v}})/\mathrm{QFI}_{\mathrm{v}}$")
 plt.legend()
-plt.savefig("comparison_preci.png", dpi = 500)
+plt.savefig(dir+"Plots/comparison_preci.png", dpi = 500)
+plt.show()
 
 #%% Data
 data_compGuiSta = np.array([time_gui, qfi_gui, time_stas, qfi_stas, N_values, ss]) # Save
 # Please, find the precomputed data in Plots folder
-data_compGuiSta = np.load("data_compGuiSta.npy") # Load
+data_compGuiSta = np.load(dir+"Data/data_compGuiSta.npy") # Load
 time_gui, qfi_gui,time_sta, qfi_sta, N_values, ss = data_compGuiSta
 
 
