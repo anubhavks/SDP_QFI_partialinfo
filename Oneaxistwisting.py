@@ -53,40 +53,42 @@ Piy =  sp.linalg.expm(1j*np.pi*Jx/2) @  Piz @ sp.linalg.expm(-1j*np.pi*Jx/2)
 #%% Choose 
  
 rho_init = np.zeros((np.shape(Jz)[0], np.shape(Jz)[1]))
-rho_init[0,0] = 1                                  # Initial state, CSSz
+rho_init[0,0] = 1                                  # Initial state: CSSz
 
 t_values = np.concatenate((np.linspace(1e-5*np.pi, 0.99*np.pi/2, 200),[np.pi/3, np.pi/4]))  # Time 
 t_values = np.sort(t_values)
 
-H = Jx @ Jx   # Hamiltonian, OAT
+H = Jx @ Jx   # Hamiltonian: OAT
 
-O_list_lin = [Jx,Jy,Jz]     # Span generator and Sensible operators
-#O_list_nonlin = [Pix, Piy, Piz]  # Span data
+O_list_lin = [Jx,Jy,Jz]     # Span generator and measurements
+# Span measurements
+# # Parity measurements
+#O_list_nonlin = [Pix, Piy, Piz]  
 #O_list_nonlin = [sp.linalg.expm(-1j*Jy*α) @ Piz @ sp.linalg.expm(1j*Jy*α)]
 #O_list_nonlin = [Pix, Piy, Piz]
 #O_list_nonlin = [Piz, 1j*(Piz @ Jy - Jy @ Piz), Pix] 
-O_list_nonlin = [Jx @ Jx, Jy @ Jy, Jz @ Jz, Jx @ Jy + Jy @ Jx, Jx @ Jz + Jz @ Jx, Jy @ Jz + Jz @ Jy]
-#O_list_nonlin = []
-
-
+# Spin moments
+#O_list_nonlin = [] # Linear
+O_list_nonlin = [Jx @ Jx, Jy @ Jy, Jz @ Jz, Jx @ Jy + Jy @ Jx, Jx @ Jz + Jz @ Jx, Jy @ Jz + Jz @ Jy] # Quadratic
+ 
 O_list = O_list_lin + O_list_nonlin
 
 
 #%%
-SS = []
-QFI_final = []
-QFI_initial = []
-QFI_max = []
+SS = []   # Squeezing lower bound with optimized generator G <=
+QFI_final = []  # <= Our SDP-based sensitivity bound with respect the same generator G <=
+QFI_initial = [] # <= QFI of the OAT state for G <=
+QFI_max = [] # <= Max QFI over linear spin generators G given the OAT state
 
 for t in t_values:
-    print(t/max(t_values))
+    print(t/max(t_values)) # Progress
     
-    rhot = sp.linalg.expm(+1j*t*H) @ rho_init @ sp.linalg.expm(-1j*t*H) 
+    rhot = sp.linalg.expm(+1j*t*H) @ rho_init @ sp.linalg.expm(-1j*t*H) # time evolution
     rhot = rhot + 1e-4*np.identity(N+1)/(N+1) # add infinitessimal mixing to be in the safe side
     rhot /= np.trace(rhot)
     
 
-    
+    # Generalized squeezing bound following Gessner derivation
     Gamma =  np.array([[2*np.imag(np.trace(rhot @ Oa @ Ob)) for Oa in O_list] for Ob in O_list])
     ExpVals = np.array([[np.real(np.trace(rhot @ Oa)) for Oa in O_list]])
     SecMoms = np.array([[np.real(np.trace(rhot @ Oa @ Ob)) for Oa in O_list] for Ob in O_list])
@@ -95,15 +97,11 @@ for t in t_values:
     Mtilde = M[0:len(O_list_lin),0:len(O_list_lin)]
     evals, evects = np.linalg.eigh(Mtilde)
     SS_t = evals[-1]/N
-    
-    
+    # Optimal generator for squeezing
     n = evects[:,-1]
-
     G = np.sum([n[k]*O_list_lin[k] for k in range(len(O_list_lin))], axis = 0)  
         
-    # SDP
-        
-        
+    # SDP  
     rho = cp.Variable((N+1, N+1), hermitian = True)
     L = cp.Variable((N+1, N+1), complex = True) 
     constraints = [cp.trace(rho) == 1] 
@@ -112,7 +110,6 @@ for t in t_values:
         for b in range(len(O_list)):
                 constraints += [cp.real(cp.trace(O_list[a] @ O_list[b] @ rho))  ==  np.real(np.trace(O_list[a] @ O_list[b] @ rhot))]
     
-        
     dtheta = 0.1/N
     rho_minus = sp.linalg.expm(1j*G*dtheta) @ rho @ sp.linalg.expm(-1j*G*dtheta)
     rho_plus = sp.linalg.expm(-1j*G*dtheta) @ rho @ sp.linalg.expm(1j*G*dtheta)
@@ -132,6 +129,9 @@ for t in t_values:
 
 #%%
 
+# By selecting different measurement strategies Figures 2,3,4 can be reproduced. 
+# We can also study the scaling by increasing N (Figure 9)
+# All data is contained in the "data" folder and the plots can be generated from "Plots_data.py"
 plt.figure(dpi = 500)
 plt.plot(t_values/np.pi, QFI_max, label = 'Max QFI over spin generators')
 plt.plot(t_values/np.pi, QFI_initial,linestyle = "dashed", label = 'QFI initial')
@@ -140,8 +140,6 @@ plt.plot(t_values/np.pi, np.array(SS),linestyle = "--", label = r'$\xi^{-2}_{\Pi
 plt.xlabel("t/π")
 plt.ylabel("QFI/N")
 plt.legend()
+#plt.savefig("OAT_linpar_N14.png", dpi = 500) # save figure
 
-#plt.savefig("OAT_linpar_N14.png", dpi = 500)
 
-
-#%%
