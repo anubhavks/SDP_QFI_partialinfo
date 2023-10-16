@@ -38,25 +38,29 @@ def J(o,N):
         return np.kron(np.identity(2**i),np.kron(o,np.identity(2**(N-i-1))))
     return np.sum([O(i) for i in range(N)],0)
 
+# Collective spin projections
 Jx = J(x,N)
 Jy = J(y,N)
 Jz = J(z,N)
 Id = J(t,N)
 
 #%%
-G = Jz
-O = [Jx + 0.2*Jz , Jy @ Jy] # The + 0.2 is to break the symmetry Jz <-> -Jz
+G = Jz  # Generator
+O = [Jx + 0.2*Jz , Jy @ Jy] # Measurements. The + 0.2 is to break the symmetry Jz <-> -Jz
 
+# One can simulate feasible expectation values from a random thermal state
 rho_beta = sp.linalg.expm(np.einsum("i,ijk -> jk", np.random.uniform(-1,1, len(O)), O))
 rho_beta /= np.trace(rho_beta)
 O_ev = [np.around(np.real(np.trace(Oa @ rho_beta)),3) for Oa in O]
-
-O_ev = [0.6071,0.5795]  # Paper
-print("O_ev = ",O_ev)
+# or consider the data used in the paper 
+O_ev = [0.6071, 0.5795]  
+print("<Jx + 0.2*Jz> = ", O_ev[0])  
+print("<Jy^2> = ", O_ev[0])  
 
 #%% Verifying that Müller and Apellaniz output the same bound
 
 def MinQFI_SDP(dtheta):
+    "Implementation of our SDP method for the previous data {O, O_eb} and generator G"
     rho = cp.Variable((len(G),len(G)), hermitian = True)
     L =  cp.Variable((len(G),len(G)), complex = True)
     rho_minus = sp.linalg.expm(+1j*dtheta*G/2) @ rho @ sp.linalg.expm(-1j*dtheta*G/2)
@@ -69,10 +73,10 @@ def MinQFI_SDP(dtheta):
     F.solve(solver = "MOSEK")
     return [F.value, QFI(rho.value,G)]
 
-
+# Implementation of method reported in Apellaniz et al.
 Eig_min = min(np.linalg.eigvalsh(G))
 Eig_max = max(np.linalg.eigvalsh(G))
-mu_res = 501
+mu_res = 501  # resolution for mu 
 mu_space = np.linspace(Eig_min,Eig_max,mu_res)
 def Apellaniz():
     def wit_mu(r,mu):
@@ -95,20 +99,22 @@ print("discrepancy = ",  abs(QFI_muller[1]-QFI_apellaniz[0])/max(QFI_muller[1], 
 
 #%% Non-convexity of Apellaniz et al. approach
 
-mu_res = 1000
-mu_space = np.linspace(Eig_min,Eig_max,mu_res)
-
-r = np.around(QFI_apellaniz[1],2)
-r_rand = np.around(np.random.uniform(-1,+1,len(O)),2)
-r_rand = np.around([0.89152937, 0.07584047],2) # Paper
-print("r_rand = ", r_rand)
-
 def WitApellaniz(r,mu):
     return np.dot(r,O_ev) - np.max(np.linalg.eigvalsh(np.einsum("i,ijk -> jk",r,O) - 4*(G - mu*Id) @ (G - mu*Id)))
-    
+
+# mu: single parameter from wich WitApellaniz must be minimized 
+mu_res = 1000
+mu_space = np.linspace(Eig_min,Eig_max,mu_res)
+# r: parametrizes proper lower bounds of the QFI via Witness WitApellaniz
+r = np.around(QFI_apellaniz[1],2)
+r_rand = np.around(np.random.uniform(-1,+1,len(O)),2)
+r_rand = np.around([0.89152937, 0.07584047],2) # Used in the paper
+print("r = ", r_rand)  
+
 wit_mu_r = [WitApellaniz(r,mu) for mu in mu_space]
 wit_mu_r_rand = [WitApellaniz(r_rand,mu) for mu in mu_space]
-#%%
+
+#%% Plot Figure 7
 
 plt.plot(mu_space/N, wit_mu_r, label = r"$\mathbf{r} = \mathbf{r}^* (optimal)$" )
 plt.plot(mu_space/N, [QFI_apellaniz[0]]*mu_res,linestyle='dashed', label = r"$\min_{\mu}\mathcal{W}_\mu(\mathbf{r}^*)$")
@@ -122,20 +128,19 @@ plt.savefig("Apellaniz.png", dpi = 500)
 
 
 
-# %%   Finite dtheta
+# %% Discussion finite dtheta: assesing the error
 
 res_dtheta = 100
 dtheta_max = 3
 dtheta_space = np.linspace(1e-10,2*dtheta_max,res_dtheta)
+# We run our algorithm for each dtheta value in dtheta_space
 muller_dtheta = np.array([MinQFI_SDP(dtheta) for dtheta in dtheta_space])
-
 
 fide_dtheta = muller_dtheta[:,0]
 qfi_dtheta = muller_dtheta[:,1]
 
-
 #%%
-# Fidelity
+# Fidelity: plot Figure 5a
 QFI_muller = MinQFI_SDP(2*0.02)
 plt.plot(2*dtheta_space/(np.pi), fide_dtheta**2, label = r"$\mathcal{F}_{\rm max}$")
 plt.plot(2*dtheta_space/(np.pi), [1-QFI_muller[1]*(i/2)**2 for i in dtheta_space], label = r"$1-F_Q[\hat{\rho}^*_{\delta\theta = 0.02},\hat{J}_z](\delta\theta)^2$", linestyle = 'dashed')
@@ -148,12 +153,11 @@ plt.legend()
 plt.savefig("finite_dtheta_fidelity.png", dpi = 300)
 
 #%%
-# QFI
+# QFI: plot Figure 5b
 
 # We disregard the first values as they are below machine's precision
 fide_dtheta[0:1] = None
 qfi_dtheta[0:1] = None
-
 
 qfi_inverted = [4*(1-fide_dtheta[i]**2)/(dtheta_space[i]**2) for i in range(res_dtheta)]
 plt.plot(2*dtheta_space/(np.pi), qfi_inverted, label = r"$(1-\mathcal{F}_{\rm max})/\delta\theta^2$" )
