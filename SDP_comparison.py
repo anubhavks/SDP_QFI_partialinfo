@@ -189,7 +189,7 @@ plt.show()
 data_compGuiSta = np.array([time_gui, qfi_gui, time_stas, qfi_stas, N_values, ss]) # Save
 
 #%%
-# Please, find the precomputed data in Plots folder
+# Please, find the precomputed data in the Data folder and the respective plots in the Plots folder
 data_compGuiSta = np.load(dir+"/Data/data_compGuiSta.npy") # Load
 time_gui, qfi_gui, time_stas, qfi_stas, N_values, ss = data_compGuiSta
 
