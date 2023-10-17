@@ -15,4 +15,4 @@ Kindly refer to the article for a detailed analysis of the methods discussed and
 
 6. The plots used in the article can be found in the [Plots](Plots).
 
-In case of any queries, please write to us at [guillem.muller@icfo.eu](guillem.muller@icfo.eu) or [anubhav.srivastava@icfo.eu](anubhav.srivastava@icfo.eu).
+In case of any queries, please write to us at [guillem.muller@icfo.eu](@mailto:guillem.muller@icfo.eu) or [anubhav.srivastava@icfo.eu](@mailto:anubhav.srivastava@icfo.eu).
